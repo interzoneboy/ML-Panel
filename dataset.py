@@ -15,8 +15,11 @@ from matplotlib import colors
 import pandas as pd
 from sklearn.cross_validation import ShuffleSplit
 from sklearn import preprocessing
-from IPython.terminal.embed import InteractiveShellEmbed
-ipshell = InteractiveShellEmbed(banner1="dataset breakpoint")
+
+# These lines break Ipython autocomplete for some reason.
+#
+#from IPython.terminal.embed import InteractiveShellEmbed
+#ipshell = InteractiveShellEmbed(banner1="dataset breakpoint")
 
 
 
@@ -96,5 +99,16 @@ def top_or_bottom(df, y_var_quantile_name, y_var_pref="TB"):
     :param y_var_quantile_name: The name of the quantile column that already exists
     :param y_var_pref: The prefix to append to the new column name (taken from y_var_quantile_name otherwise)
     :returns: *copy* of the data frame df, with a binary (+ NaN) valued top/bottom quantile column.
+    """
+    pass
+
+
+def group_dataset(df, selection_function):
+    """ Filter *df* by only including rows where grp_function returns True.
+
+    :param df: pandas data frame to be filtered.
+    :param selection_function: a function that, when called like select_func(df) will return row indices to keep, and 
+        when called like select_func() will return a string identifying the filtering operation (eg) "Female, eth=J")
+    :returns: the filtered dataset.
     """
     pass

@@ -68,6 +68,33 @@ def randomSplit(df, y_var_name, x_var_names, testSize=0.35, seedIn=None):
     return {'test_x': data_test_scaled,
             'test_y': test_rows[y_var_name],
             'train_x': data_tr_scaled,
-            'train_y': training_rows[y_var_name]
+            'train_y': training_rows[y_var_name],
             }
 
+
+
+def compute_quantiles(df, y_var_name, quantile, y_var_pref="qtile_"):
+    """ Return a copy of df with a new column (y_var_pref + quantile + y_var_name) that
+        reflects y_var_name broken up into the appropriate quantiles.
+
+    :param df: pandas data frame to add quantile column.
+    :param y_var_name: the column name of *df* for which we want the quantiles.
+    :param quantile: int -- the number of quantiles bins needed.
+    :param y_var_pref: prefix to append to the new column name, which is otherwise formed from the quantile
+        number and the y_var_name.
+    :returns: *copy* of df, with the new column added.
+    """
+    pass
+
+
+def top_or_bottom(df, y_var_quantile_name, y_var_pref="TB"):
+    """ Return a copy of df, with a new binary valued column, indicating whether the corresponding quantile
+        is in the top or the bottom quantile. Non-top/bottom entries are left as NA/NaN. This is a useful function
+        combined with compute_quantiles for generating quantile classification target variables.
+
+    :param df: pandas data frame to add Top/Bottom of quantile column
+    :param y_var_quantile_name: The name of the quantile column that already exists
+    :param y_var_pref: The prefix to append to the new column name (taken from y_var_quantile_name otherwise)
+    :returns: *copy* of the data frame df, with a binary (+ NaN) valued top/bottom quantile column.
+    """
+    pass

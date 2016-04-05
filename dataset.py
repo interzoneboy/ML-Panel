@@ -89,8 +89,6 @@ def compute_quantiles(df, y_var_name, quantile, y_var_pref="qtile_"):
     def makeQuantile(vec, numQ):
         output = [np.nan for i in range(0, len(vec))]
         perc = np.nanpercentile(vec, np.linspace(0,100, (numQ+1)))
-        print vec
-        print perc
 
         for ind in range(0, len(vec)):
             if np.isnan(vec[ind]):
@@ -113,18 +111,44 @@ def compute_quantiles(df, y_var_name, quantile, y_var_pref="qtile_"):
     return df_out
 
 
-
-def top_or_bottom(df, y_var_quantile_name, y_var_pref="TB"):
+def top_or_bottom(df, y_var_quantile_name, collapse=False, y_var_pref="TB"):
     """ Return a copy of df, with a new binary valued column, indicating whether the corresponding quantile
         is in the top or the bottom quantile. Non-top/bottom entries are left as NA/NaN. This is a useful function
         combined with compute_quantiles for generating quantile classification target variables.
 
     :param df: pandas data frame to add Top/Bottom of quantile column
     :param y_var_quantile_name: The name of the quantile column that already exists
+    :param collapse: Remove rows in returned data frame where the Top/Bottom variable isn't defined (is nan)
     :param y_var_pref: The prefix to append to the new column name (taken from y_var_quantile_name otherwise)
-    :returns: *copy* of the data frame df, with a binary (+ NaN) valued top/bottom quantile column.
+    :returns: *copy* of the data frame df, with a binary (+ NaN, maybe. see "collapse" arg) valued top/bottom quantile column.
     """
-    pass
+    vec = df[y_var_quantile_name]
+    qMax = int(max(vec))
+    output = [np.nan for i in range(0, len(vec))]
+    for ind in range(0, len(vec)):
+        if np.isnan(vec[ind]):
+            output[ind] = np.nan
+        else:
+            if vec[ind] == 1:
+                output[ind] = -1
+            elif vec[ind] == qMax:
+                output[ind] = 1
+            else:
+                pass
+    df_out = copy.deepcopy(df)
+    df_out[y_var_pref + y_var_quantile_name] = output
+
+    if collapse==True:
+        ok_inds = (np.isnan(df_out[y_var_pref + y_var_quantile_name])==False).nonzero()
+        # This needs to be indexed this way, and not as [ok_inds,:] because of the somewhat strange shape
+        # that ok_inds is in.
+        df_out_2 = df_out.iloc[ok_inds]
+    else:
+        df_out_2 = df_out
+
+    return df_out_2
+
+
 
 
 def group_dataset(df, selection_function):

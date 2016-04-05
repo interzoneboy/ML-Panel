@@ -75,7 +75,6 @@ def randomSplit(df, y_var_name, x_var_names, testSize=0.35, seedIn=None):
             }
 
 
-
 def compute_quantiles(df, y_var_name, quantile, y_var_pref="qtile_"):
     """ Return a copy of df with a new column (y_var_pref + quantile + y_var_name) that
         reflects y_var_name broken up into the appropriate quantiles.
@@ -86,8 +85,33 @@ def compute_quantiles(df, y_var_name, quantile, y_var_pref="qtile_"):
     :param y_var_pref: prefix to append to the new column name, which is otherwise formed from the quantile
         number and the y_var_name.
     :returns: *copy* of df, with the new column added.
-    """
-    pass
+    """ 
+    def makeQuantile(vec, numQ):
+        output = [np.nan for i in range(0, len(vec))]
+        perc = np.nanpercentile(vec, np.linspace(0,100, (numQ+1)))
+        print vec
+        print perc
+
+        for ind in range(0, len(vec)):
+            if np.isnan(vec[ind]):
+                output[ind] = np.nan
+                continue
+
+            qTile = 1
+            while qTile < numQ:
+                if vec[ind] >= perc[qTile]:
+                    qTile += 1
+                else:
+                    break
+
+            output[ind] = qTile
+        return output
+
+    qVec = makeQuantile(df[y_var_name], quantile)
+    df_out = copy.deepcopy(df)
+    df_out[y_var_pref+str(quantile)+"_"+y_var_name] = qVec
+    return df_out
+
 
 
 def top_or_bottom(df, y_var_quantile_name, y_var_pref="TB"):

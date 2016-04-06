@@ -39,7 +39,7 @@ if __name__ == "__main__":
     d3 = DS.top_or_bottom(d2, "qtile_4_y_var_3", collapse=True)
 
     x_names = [a for a in d3.columns if ('x_var' in a.lower() and ('agg' not in a.lower()))]
-    y_name = "qtile_4_y_var_3"
+    y_name = "TBqtile_4_y_var_3"
 
     dReady = DS.randomSplit(d3, y_name, x_names)
 

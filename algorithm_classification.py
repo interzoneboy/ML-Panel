@@ -10,6 +10,7 @@ import numpy as np
 from copy import deepcopy
 import pandas as pd
 import pylab
+import traceback
 
 from sklearn.metrics import roc_auc_score
 from sklearn.lda import LDA
@@ -38,7 +39,8 @@ def tc2(func, context=None):
         if context is None:
             return e
         else:
-            return (e, context)
+            e.context = context
+            return e
 
 
 def takeBigger(a1,a2):
@@ -84,13 +86,14 @@ def opt(paramName, valsList):
                     x_vals.append(val)
                     try:
                         y_vals.append(output['metrics']['auc'])
-                    except:
+                    except Exception, e:
+                        tb = traceback.format_exc()
                         from IPython.terminal.embed import InteractiveShellEmbed
-                        ipshell = InteractiveShellEmbed(banner1="dataset breakpoint")
+                        ipshell = InteractiveShellEmbed(banner1="opt breakpoint")
                         ipshell()
                         raise
 
-                    print output['metrics']['auc']
+                    #print output['metrics']['auc']
                     acc.append(output)
                 accSrt = sorted(acc, key=lambda x: x['metrics']['auc'], reverse=True)
                 to_return = accSrt[0]
@@ -128,11 +131,19 @@ def fitAndScore(model, data):
     :param data: Dict containing data -- {"test_x","test_y","train_x","train_y"}
     :returns: Dict with all results needed downstream.
     """
-    model.fit(data['train_x'], data['train_y'])
-    sc = tc2(lambda : model.decision_function(data['test_x']))
-    acc = tc2(lambda : model.score(data['test_x'], data['test_y']))
-    pred = tc2(lambda : model.predict(data['test_x']))
-    metrics = tc2(lambda : calc_metrics(data['test_y'], pred, sc), {'truth':data['test_y'], 'pred':pred, 'scores':sc})
+    try:
+        model.fit(data['train_x'], data['train_y'])
+        sc = tc2(lambda : model.decision_function(data['test_x']))
+        acc = tc2(lambda : model.score(data['test_x'], data['test_y']))
+        pred = tc2(lambda : model.predict(data['test_x']))
+        metrics = tc2(lambda : calc_metrics(data['test_y'], pred, sc), {'truth':data['test_y'], 'pred':pred, 'scores':sc})
+    except Exception, e:
+        tb = traceback.format_exc()
+        from IPython.terminal.embed import InteractiveShellEmbed
+        ipshell = InteractiveShellEmbed(banner1="fitAndScore breakpoint")
+        ipshell()
+        raise
+
 
     return {'scores':sc,
             'acc':acc,
@@ -182,6 +193,7 @@ def ml_lda(data, regParam=None, **kwargs):
     return fitAndScore(m, data)
 
 @reg("qda")
+@opt("regParam", np.linspace(-5, 10, num=50))
 def ml_qda(data, regParam=None, **kwargs):
     """ Fit QDA on data, regularized by regParam. """
     m = QDA(reg_param=regParam)

@@ -219,7 +219,7 @@ def ml_tree(data, regParam=None, **kwargs):
 def ml_sgdLog(data, regParam=None, l1_ratio=1.0, **kwargs):
     """ Fit Stochastic Gradient Descent with specified l1_ratio (elasticnet-ish-ness),
         regularized by regParam."""
-    m = SGDClassifier(loss='log', penalty='elasticnet', l1_ratio=l1_ratio, alpha=regParam)
+    m = SGDClassifier(loss='log', penalty='elasticnet', l1_ratio=l1_ratio, alpha=regParam, n_iter=2000)
     return fitAndScore(m, data)
 
 @reg("forest")

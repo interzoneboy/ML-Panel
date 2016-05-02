@@ -96,12 +96,22 @@ def runMain():
     y_name = "TBqtile_4_y_var_3"
      
     alg_results = {}
-    for (kk,rr) in [('svm_linear',0.008), ('svm_rbf',0.5), ('lda',None), ('qda',0.2), ('logistic',0.001), ('SGDlogistic',0.0000001)]:
-        print "Working on " + str(kk)
-        alg_results[kk] = []
+    for (nn,kk,rr) in [(None, 'svm_linear',0.008), (None, 'svm_rbf',0.5), (None, 'lda',None), (None, 'qda',0.2), 
+                       (None, 'logistic',0.01), #('sgd1','SGDlogistic',0.0000001),
+                       ('sgd1', 'SGDlogistic', 0.01),
+                       ('sgd2', 'SGDlogistic', 0.1),
+                       ('sgd3', 'SGDlogistic', 0.2),
+                       ('sgd4', 'SGDlogistic', 0.3),
+                       ('sgd5', 'SGDlogistic', 0.4),
+                       ('sgd6', 'SGDlogistic', 0.42),
+                       ('sgd7', 'SGDlogistic', 12.0)]:
+        if nn is None:
+            nn = kk
+        print "Working on " + str(nn)
+        alg_results[nn] = []
         for numIter in range(0, 100):
             dReady = DS.randomSplit(d3, y_name, x_names)
-            alg_results[kk].append(ALG.algorithms[kk](dReady, regParam=rr))
+            alg_results[nn].append(ALG.algorithms[kk](dReady, regParam=rr))
             #alg_results[kk].append(ALG.algorithms[kk](dReady))
             if numIter%20==0:
                 print "Finished %s iterations." % (str(numIter),)

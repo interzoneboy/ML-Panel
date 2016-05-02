@@ -78,11 +78,12 @@ def opt(paramName, valsList):
                 #dataToUse = getData() if 'data' not in kwargs.keys() else kwargs['data'] #kwargs['data']
                 acc = []
                 x_vals = []; y_vals = [];
-                for val in list(valsList):
+                for iVal,val in enumerate(list(valsList)):
                     kwargs[paramName] = val
                     #kwargs['data'] = dataToUse
                     output = func(*args, **kwargs)
                     output['best_'+paramName] = val
+                    output['bestIndex_'+paramName] = iVal
                     x_vals.append(val)
                     try:
                         y_vals.append(output['metrics']['auc'])

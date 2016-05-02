@@ -39,13 +39,13 @@ def run_test():
     x_names = [a for a in d3.columns if ('x_var' in a.lower() and ('agg' not in a.lower()))]
     y_name = "TBqtile_4_y_var_3"
     
-    dReady = DS.randomSplit(d3, y_name, x_names)
     
     alg_results = {}
     for kk in ['tree']:
         print "Working on " + str(kk)
         alg_results[kk] = []
         for numIter in range(0, 500):
+            dReady = DS.randomSplit(d3, y_name, x_names)
             alg_results[kk].append(ALG.algorithms[kk](dReady))
             if numIter%20==0:
                 print "Finished %s iterations." % (str(numIter),)
@@ -62,14 +62,13 @@ if __name__ == "__main__":
     
     x_names = [a for a in d3.columns if ('x_var' in a.lower() and ('agg' not in a.lower()))]
     y_name = "TBqtile_4_y_var_3"
-    
-    dReady = DS.randomSplit(d3, y_name, x_names)
-    
+     
     alg_results = {}
     for kk in ['svm_linear','svm_rbf','lda','qda','logistic','SGDlogistic']:
         print "Working on " + str(kk)
         alg_results[kk] = []
         for numIter in range(0, 100):
+            dReady = DS.randomSplit(d3, y_name, x_names)
             alg_results[kk].append(ALG.algorithms[kk](dReady))
             if numIter%20==0:
                 print "Finished %s iterations." % (str(numIter),)

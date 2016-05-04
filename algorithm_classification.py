@@ -21,7 +21,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn import tree
 from sklearn.cross_decomposition import PLSRegression
 from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegressionCV
 from sklearn.linear_model import SGDClassifier
+from sklearn.naive_bayes import GaussianNB
 
 
 def tc(func):
@@ -70,7 +72,7 @@ def opt(paramName, valsList):
         # Have we passed in a parameter
         def wrapped(*args, **kwargs):
             #if len(args)!=0:
-            if paramName in kwargs.keys():
+            if paramName in kwargs.keys() and kwargs[paramName] != None:
                 #dataToUse = getData() if 'data' not in kwargs.keys() else kwargs['data']
                 #kwargs['data'] = dataToUse
                 return func(*args, **kwargs)
@@ -193,6 +195,12 @@ def ml_lda(data, regParam=None, **kwargs):
         m = LDA(solver='lsqr', shrinkage='auto')
     return fitAndScore(m, data)
 
+@reg("gaussianNB")
+def ml_gaussianNB(data, regParam=None, **kwargs):
+    """ Model the data using gaussian naive bayes """
+    m = GaussianNB()
+    return fitAndScore(m, data)
+
 @reg("qda")
 @opt("regParam", np.linspace(-5, 10, num=50))
 def ml_qda(data, regParam=None, **kwargs):
@@ -207,6 +215,12 @@ def ml_logistic(data, regParam=None, **kwargs):
     m = LogisticRegression(C=regParam, penalty='l1', tol=1e-6)
     return fitAndScore(m, data)
 
+@reg("logisticCV")
+def ml_logistic(data, regParam=None, **kwargs):
+    """ Fit logistic regression on data, shrunk using L1 penalty by regParam. """
+    m = LogisticRegressionCV(penalty='l1', solver='liblinear')
+    return fitAndScore(m, data)
+
 @reg("tree")
 @opt("regParam", range(1,11))
 def ml_tree(data, regParam=None, **kwargs):
@@ -219,7 +233,7 @@ def ml_tree(data, regParam=None, **kwargs):
 def ml_sgdLog(data, regParam=None, l1_ratio=1.0, **kwargs):
     """ Fit Stochastic Gradient Descent with specified l1_ratio (elasticnet-ish-ness),
         regularized by regParam."""
-    m = SGDClassifier(loss='log', penalty='elasticnet', l1_ratio=l1_ratio, alpha=regParam, n_iter=2000)
+    m = SGDClassifier(loss='log', penalty='elasticnet', l1_ratio=l1_ratio, alpha=regParam, n_iter=200)
     return fitAndScore(m, data)
 
 @reg("forest")

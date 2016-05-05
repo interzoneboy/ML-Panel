@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>ML Panel</title>
+</head>
+<body>
+    <ul id="navigation">
+    {% for item in navigation %}
+        <li><a href="{{ item.href }}">{{ item.caption }}</a></li>
+    {% endfor %}
+    </ul>
+
+    <h1>The shiz</h1>
+
+    {% for item in itemList %}
+
+    <h2>{{item.y}}</h2>
+
+    <img src="{{item.figpath3}}"><br>
+    <img src="{{item.figpath2}}" width="350" height="350">
+    <img src="{{item.figpath1}}" width="350" height="350"><br>
+
+    {% endfor %}
+
+    {# a comment #}
+</body>
+</html>

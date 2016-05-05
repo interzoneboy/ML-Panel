@@ -16,6 +16,9 @@ import pickle
 import math
 from contextlib import contextmanager
 
+from jinja2 import Environment, FileSystemLoader
+
+
 @contextmanager
 def stdout_redirected(new_stdout):
     # This maps both stdout and stderr to the new_stdout file descriptor.
@@ -55,13 +58,14 @@ def plotOpts(listOfFitAndScore):
 #################
 
 
-def plotCoefBoxplot(alg_res, keyList):
+def plotCoefBoxplot(alg_res, keyList, figPath="figures/testFig3.png"):
     """ 
     Plot the coefficients of the models. Note that only some model objects have a "coef_" attribute.
     Where the model doesn't have one there will just be an ugly blank plot.
     """
     ncol = len(keyList) / 4 + 1
     nrow = int(math.ceil(float(len(keyList)) / float(ncol)))
+    pylab.figure()
     for i,ll in enumerate(keyList):
         pylab.subplot(nrow, ncol, (i+1))
         try:
@@ -70,10 +74,11 @@ def plotCoefBoxplot(alg_res, keyList):
         except Exception,e:
             pass
         pylab.title(ll)
-    pylab.show()
+    #pylab.show()
+    pylab.savefig(figPath)
 
 
-def plotCoefHeatmap(alg_res, keyList):
+def plotCoefHeatmap(alg_res, keyList, figPath="figures/testFig2.png"):
     """
     Plots the coeffs as a heatmap, with each model having a row. The scaled median coeffs are shown
     """
@@ -92,21 +97,24 @@ def plotCoefHeatmap(alg_res, keyList):
     for i in range(0, heatData.shape[0]):
         fact = np.max([abs(a) for a in heatData[i,:]])
         heatData[i,:] = heatData[i,:] /  float(fact)
-
+    
+    pylab.figure()
     pylab.pcolormesh(heatData, cmap='coolwarm')
     pylab.xlabel("Feature Index")
     pylab.yticks(range(0, len(names)), names)
-    pylab.show()
+    #pylab.show()
+    pylab.savefig(figPath)
 
     #return mList
 
 
 
 
-def plotMetrics(alg_res, keyList, metric):
+def plotMetrics(alg_res, keyList, metric, figPath="figures/testFig1.png"):
     """ Plot histograms of the metric, for each classifier """
     ncol = len(keyList) / 4 + 1
     nrow = int(math.ceil(float(len(keyList)) / float(ncol)))
+    pylab.figure()
     #print "%s, %s" % (str(ncol), str(nrow))
     ax_arr = []
     for i,ll in enumerate(keyList):
@@ -128,7 +136,7 @@ def plotMetrics(alg_res, keyList, metric):
 
     #ax1.set_xticklabels([tsl[0], tsl[-1]])
     
-    pylab.show()
+    pylab.savefig(figPath)
     #return ax_arr
 
 def test2(res):
@@ -137,6 +145,7 @@ def test2(res):
 #################
 #################
 #################
+
 
 
 
@@ -199,3 +208,45 @@ def runMain(d, yVarName, numQuantiles):
                 print "Finished %s iterations." % (str(numIter),)
 
     return (alg_results, x_names, y_name, d)
+
+
+
+
+def renderHtml(metric="auc", limit=3):
+
+    theLoader = FileSystemLoader('templates')
+    env = Environment(loader=theLoader)
+
+    d = loadData()
+
+    ys = [a for a in d.columns if 'y_var' in a.lower()]
+
+    if limit is None:
+        limit = len(ys)
+
+    dataList = []
+
+    for yInd,y in enumerate(ys[:limit]):
+
+        print str((yInd,y))
+        
+        try:
+            res,x,y,ignore = runMain(d, y, 4)
+        except Exception,e:
+            raise
+
+        figPath = lambda x: "figures/plot_%s_%s.png" % (str(yInd), str(x))
+
+        plotCoefBoxplot(res, res.keys(), figPath=figPath(1))
+        plotCoefHeatmap(res, res.keys(), figPath=figPath(2))
+        plotMetrics(res, res.keys(), metric, figPath=figPath(3))
+
+        dataList.append({'y':y, 'figpath1': figPath(1), 'figpath2': figPath(2), 'figpath3': figPath(3)})
+
+
+    template = env.get_template("initTemplate.html")
+
+    with open("holyCrap.html", 'w') as f:
+
+        f.write( template.render(itemList = dataList) )
+
